@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  feathers-backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    volumes:
+      - ./server/featherjs-chat.sqlite:/app/featherjs-chat.sqlite
+      - server-node-modules:/app/node_modules
+    ports:
+      - "3030:3030"
+    environment:
+      NODE_ENV: development
+    networks:
+      - app-network
+
+  react-frontend:
+    build:
+      context: ./react-chat/react-chat-app
+      dockerfile: Dockerfile
+    volumes:
+      - react-node-modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      REACT_APP_BACKEND_URL: http://feathers-backend:3030
+    depends_on:
+      - feathers-backend
+    networks:
+      - app-network
+
+volumes:
+  server-node-modules:
+  react-node-modules:
+
+networks:
+  app-network:
+    driver: bridge
